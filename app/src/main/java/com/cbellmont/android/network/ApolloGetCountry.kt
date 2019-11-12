@@ -60,7 +60,6 @@ class ApolloGetCountry {
 
                     override fun onFailure(e: ApolloException) {
                         e.printStackTrace()
-                        displayToast(context, context.getString(R.string.toast_internet_error))
                     }
                 })
         }

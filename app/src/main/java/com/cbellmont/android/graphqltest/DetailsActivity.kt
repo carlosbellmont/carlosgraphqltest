@@ -3,21 +3,22 @@ package com.cbellmont.android.graphqltest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProviders
 import com.cbellmont.android.network.ApolloGetCountry
 import com.cbellmont.android.storage.*
 import com.cbellmont.android.utils.CountryUtils
+import com.cbellmont.android.viewmodel.CountryDetailViewModel
 import kotlinx.android.synthetic.main.activity_details.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 class DetailsActivity : AppCompatActivity() {
 
+    lateinit var model: CountryDetailViewModel
     private lateinit var mToolbar: Toolbar
 
     companion object{
@@ -51,7 +52,19 @@ class DetailsActivity : AppCompatActivity() {
             finish()
         }
 
-        loadDetails(id)
+        model = ViewModelProviders
+            .of(this, CountryDetailViewModel.ViewModelFactory(this.application, id))
+            .get(CountryDetailViewModel::class.java)
+
+        model.countryDetails.observe(this, androidx.lifecycle.Observer { country ->
+            country?.let {
+                Log.e("CARLOS TAG", "Calledddddddd")
+                showCountry(model.countryDetails.value)
+            }
+        })
+
+        model.fetchData(this)
+        //loadDetails(id)
     }
 
 
@@ -59,7 +72,10 @@ class DetailsActivity : AppCompatActivity() {
         setSupportActionBar(mToolbar)
     }
 
-    private fun showCountry(country : Country){
+    private fun showCountry(country : Country?){
+        if (country == null) {
+            return
+        }
         GlobalScope.launch(Dispatchers.Main){
             supportActionBar?.title = getString(R.string.toolbar_main_title)
             tw_name.text = String.format(Locale.ENGLISH, getString(R.string.country_name), country.name)
@@ -69,17 +85,21 @@ class DetailsActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun loadDetails(id : Int) {
-        GlobalScope.launch(Dispatchers.IO){
+        GlobalScope.launch(Dispatchers.IO) {
             val country = CountryRepository(Db.invoke(application).countryDao()).getById(id)
             if (CountryUtils.isComplete(country)) {
                 showCountry(country)
             } else {
+
                 ApolloGetCountry.get(this@DetailsActivity, country)
-                //TODO This is a fast trick to update the UI! Must be changed as sooner as possible.
-                delay(400)
-                showCountry(country)
+//                //TODO This is a fast trick to update the UI! Must be changed as sooner as possible.
+//                delay(400)
+//                showCountry(country)
             }
+
         }
     }
 }

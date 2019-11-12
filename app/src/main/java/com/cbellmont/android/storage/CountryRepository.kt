@@ -2,6 +2,7 @@ package com.cbellmont.android.storage
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 class CountryRepository(private val CountryDao: CountryDao) {
 
@@ -19,6 +20,11 @@ class CountryRepository(private val CountryDao: CountryDao) {
     @WorkerThread
     fun getById(id: Int) : Country {
         return CountryDao.loadById(id)
+    }
+
+    @WorkerThread
+    fun getByIdLiveData(id: Int) : LiveData<Country> {
+        return CountryDao.loadByIdLiveData(id)
     }
 
     @WorkerThread

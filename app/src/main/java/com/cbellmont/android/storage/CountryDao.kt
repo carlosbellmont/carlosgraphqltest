@@ -1,6 +1,7 @@
 package com.cbellmont.android.storage
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 
 @Dao
@@ -20,6 +21,9 @@ interface CountryDao {
 
     @Query("SELECT * FROM Country WHERE id == :countryId")
     fun loadById(countryId: Int): Country
+
+    @Query("SELECT * FROM Country WHERE id == :countryId")
+    fun loadByIdLiveData(countryId: Int): LiveData<Country>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(countryList: Array<Country>)
