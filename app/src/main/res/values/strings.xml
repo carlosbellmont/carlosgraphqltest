@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">GraphQL Test</string>
+
+
+    <string name="toolbar_main_title">Country</string>
+    <string name="tab_upcoming_title">A-Z</string>
+    <string name="tab_hottest_title">Z-A</string>
+    <string name="currency">The currency is %s</string>
+    <string name="languages">Languages spoken:\n%s</string>
+    <string name="near_countries">Neighbors:\n%s</string>
+    <string name="country_name">Country name:\n%s</string>
+    <string name="toast_internet_error">Error downloading the data from the Internet</string>
+    <string name="toast_error_store">Error storing the picture</string>
+    <string name="toast_error_initial_data">Error opening the details</string>
+    <string name="toast_error_server">Error retrieving data from server</string>
+
+</resources>

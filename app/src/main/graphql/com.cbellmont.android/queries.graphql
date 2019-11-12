@@ -1,0 +1,21 @@
+query getAllCountries{
+    countries{
+        name
+        code
+    }
+}
+
+query getCountryDetails($code:String){
+    country(code:$code){
+        currency
+        languages {
+            name
+        }
+        continent{
+            name
+            countries{
+                name
+            }
+        }
+    }
+}
