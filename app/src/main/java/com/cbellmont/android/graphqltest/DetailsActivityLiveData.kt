@@ -3,29 +3,35 @@ package com.cbellmont.android.graphqltest
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.cbellmont.android.network.ApolloGetCountry
 import com.cbellmont.android.storage.*
 import com.cbellmont.android.utils.CountryUtils
+import com.cbellmont.android.viewmodel.CountryDetailsLiveDataViewModel
 import kotlinx.android.synthetic.main.activity_details.*
 import kotlinx.coroutines.*
 import java.util.*
 
-class DetailsActivity : AppCompatActivity() {
+class DetailsActivityLiveData : AppCompatActivity() {
 
+    lateinit var model: CountryDetailsLiveDataViewModel
     private lateinit var mToolbar: Toolbar
+
 
     companion object {
         var INTENT_COUNTRY_ID = "COUNTRY_ID"
 
         fun getExampleDetailsIntent(context: Context): Intent {
-            return getDetailsIntent(context, 1)
+            return getDetailsActivityLiveData(context, 1)
         }
 
-        fun getDetailsIntent(context: Context, id: Int): Intent {
-            return Intent(context, DetailsActivity::class.java).apply {
+        fun getDetailsActivityLiveData(context: Context, id: Int): Intent {
+            return Intent(context, DetailsActivityLiveData::class.java).apply {
                 putExtra(INTENT_COUNTRY_ID, id)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
@@ -37,6 +43,7 @@ class DetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
         mToolbar = findViewById(R.id.toolbarDetails)
+
         configureToolbar()
         val countryId = intent?.extras?.getInt(INTENT_COUNTRY_ID, -1)!!
 
@@ -46,26 +53,20 @@ class DetailsActivity : AppCompatActivity() {
             finish()
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val country = fetchData(countryId)
+        model = ViewModelProviders
+            .of(this, CountryDetailsLiveDataViewModel.ViewModelFactory(this.application, countryId))
+            .get(CountryDetailsLiveDataViewModel::class.java)
+
+        val countryObserver = Observer<Country> { country ->
             showCountry(country)
         }
-    }
-
-    private suspend fun fetchData(countryId: Int) : Country {
-        val dao = Db.invoke(application).countryDao()
-        val repository = CountryRepository(dao)
-        val countryDetails = repository.getById(countryId)
-        showCountry(countryDetails)
-
-        if (!CountryUtils.isComplete(countryDetails)) {
-            ApolloGetCountry.get(application, countryDetails)
-        }
-       return repository.getById(countryId)
+        model.countryDetails.observe(this, countryObserver)
+        model.fetchData(this, countryId)
     }
 
     private fun configureToolbar() {
         setSupportActionBar(mToolbar)
+        mToolbar.title = "Reversed"
     }
 
     private fun showCountry(country : Country?){
@@ -80,6 +81,5 @@ class DetailsActivity : AppCompatActivity() {
             tw_languages.text = String.format(Locale.ENGLISH, getString(R.string.languages),country.languages)
         }
     }
-
 }
 

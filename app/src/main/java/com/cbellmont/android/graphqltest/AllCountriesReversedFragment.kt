@@ -47,7 +47,7 @@ class AllCountriesReversedFragment : Fragment() , CountryAdapter.OnItemClickList
             if (item == null){
                 return@launch
             }
-            startActivity(DetailsActivity.getDetailsIntent(context!!, item.id))
+            startActivity(DetailsActivityLiveData.getDetailsActivityLiveData(context!!, item.id))
         }
     }
 }

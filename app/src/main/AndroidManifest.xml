@@ -19,8 +19,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.cbellmont.android.graphqltest.DetailsActivity">
-        </activity>
+        <activity android:name="com.cbellmont.android.graphqltest.DetailsActivity"/>
+        <activity android:name="com.cbellmont.android.graphqltest.DetailsActivityLiveData"/>
     </application>
 
 </manifest>
